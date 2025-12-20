@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME}
         state_multi.cpp
         two_product.cpp
         pmf.cpp
+        state_single.h
 )
 
 #-----------------------------------

@@ -1,7 +1,7 @@
 /*
  * Created by Zhen Chen on 2025/12/15.
  * Email: chen.zhen5526@gmail.com
- * Description:
+ * Description: 4 period, capacity 40, running time is 0.77s, while java is 4s
  *
  *
  */
@@ -23,20 +23,20 @@ int main() {
   constexpr std::array mean_demands = {10.0, 5.0};
   constexpr std::array scales = {1 / 2.5, 1 / 1.25};
 
-  constexpr int T = 1;
+  constexpr int T = 4;
   constexpr double interest_rate = 0.0;
   constexpr double ini_cash = 10;
   constexpr double ini_I1 = 0;
   constexpr double ini_I2 = 0;
   constexpr double truncated_quantile = 0.9999;
-  constexpr double capacity = 30;
+  constexpr double capacity = 40;
   constexpr double max_I = 100;
 
-  const auto pmf = get_pmf_gamma2(mean_demands, scales, truncated_quantile);
+  const auto pmf = get_pmf_gamma2_product(mean_demands, scales, truncated_quantile);
   const auto ini_state = StateMulti(1, ini_I1, ini_I2, ini_cash);
 
-  auto problem = TwoProduct(T, capacity, max_I, truncated_quantile, interest_rate, prices,
-                            unit_order_costs, unit_salvage_values, pmf);
+  auto problem = TwoProduct(T, capacity, max_I, interest_rate, prices, unit_order_costs,
+                            unit_salvage_values, pmf);
 
   const auto start_time = std::chrono::high_resolution_clock::now();
   const auto result = problem.solve(ini_state);

@@ -18,8 +18,17 @@
  * @param quantile
  * @return
  */
-std::vector<std::array<double, 3>> get_pmf_gamma2(const std::array<double, 2> &means,
+std::vector<std::array<double, 3>> get_pmf_gamma2_product(const std::array<double, 2> &means,
                                                   const std::array<double, 2> &scales,
                                                   double quantile);
+
+/**
+ *  get the probability mass function values for 1 product with gamma distribution
+ * @param mean
+ * @param scale
+ * @param quantile
+ * @return
+ */
+std::vector<std::array<double, 2>> get_pmf_gamma1_product(double mean, double scale, double quantile);
 
 #endif // PMF_H

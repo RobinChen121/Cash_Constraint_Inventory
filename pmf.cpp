@@ -11,7 +11,7 @@
 
 // shape = demand / scale
 // variance = shape * scale^2 = demand * scale
-std::vector<std::array<double, 3>> get_pmf_gamma2(const std::array<double, 2> &means,
+std::vector<std::array<double, 3>> get_pmf_gamma2_product(const std::array<double, 2> &means,
                                                   const std::array<double, 2> &scales,
                                                   const double quantile) {
   const boost::math::gamma_distribution gamma_dist1(means[0] / scales[0], scales[0]);
@@ -39,8 +39,25 @@ std::vector<std::array<double, 3>> get_pmf_gamma2(const std::array<double, 2> &m
       index++;
     }
   }
-  double sum = 0.0;
-  for (auto item: pmf)
-    sum += item[2];
+
+  return pmf;
+}
+
+std::vector<std::array<double, 2>> get_pmf_gamma1_product(const double mean, const double scale, const double quantile) {
+  const boost::math::gamma_distribution gamma_dist(mean / scale, scale);
+
+  const int upper_bound = static_cast<int>(boost::math::quantile(gamma_dist, quantile));
+  const int lower_bound = static_cast<int>(boost::math::quantile(gamma_dist, 1 - quantile));
+  const int demand_length = upper_bound - lower_bound + 1;
+
+  const double denominator = cdf(gamma_dist, upper_bound) - cdf(gamma_dist, lower_bound);
+
+  std::vector<std::array<double, 2>> pmf(demand_length);
+  for (int i = 0; i < demand_length; i++) {
+    pmf[i][0] = i + lower_bound;
+    pmf[i][1] = cdf(gamma_dist, pmf[i][0] + 0.5) - cdf(gamma_dist, std::fmax(pmf[i][0] - 0.5, 0));
+    pmf[i][1] /= denominator;
+  }
+
   return pmf;
 }

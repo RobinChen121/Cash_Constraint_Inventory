@@ -12,4 +12,12 @@ endif ()
 
 add_executable(${PROJECT_NAME}
         main.cpp
+        state_multi.cpp
+        two_product.cpp
+        pmf.cpp
 )
+
+#-----------------------------------
+# Boost
+find_package(Boost REQUIRED COMPONENTS system thread filesystem)
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})

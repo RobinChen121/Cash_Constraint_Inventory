@@ -43,21 +43,34 @@ std::vector<std::array<double, 3>> get_pmf_gamma2_product(const std::array<doubl
   return pmf;
 }
 
-std::vector<std::array<double, 2>> get_pmf_gamma1_product(const double mean, const double scale, const double quantile) {
-  const boost::math::gamma_distribution gamma_dist(mean / scale, scale);
+std::array<std::vector<std::array<double, 2>>, 2> get_pmf_gamma1_products(const std::array<double, 2> &means,
+                                                  const std::array<double, 2> &scales, const double quantile) {
+  const boost::math::gamma_distribution gamma_dist1(means[0] / scales[0], scales[0]);
+  const boost::math::gamma_distribution gamma_dist2(means[1] / scales[1], scales[1]);
 
-  const int upper_bound = static_cast<int>(boost::math::quantile(gamma_dist, quantile));
-  const int lower_bound = static_cast<int>(boost::math::quantile(gamma_dist, 1 - quantile));
-  const int demand_length = upper_bound - lower_bound + 1;
+  const int upper_bound1 = static_cast<int>(boost::math::quantile(gamma_dist1, quantile));
+  const int lower_bound1 = static_cast<int>(boost::math::quantile(gamma_dist1, 1 - quantile));
+  const int demand_length1 = upper_bound1 - lower_bound1 + 1;
+  const int upper_bound2 = static_cast<int>(boost::math::quantile(gamma_dist2, quantile));
+  const int lower_bound2 = static_cast<int>(boost::math::quantile(gamma_dist2, 1 - quantile));
+  const int demand_length2 = upper_bound2 - lower_bound2 + 1;
 
-  const double denominator = cdf(gamma_dist, upper_bound) - cdf(gamma_dist, lower_bound);
+  const double denominator1 = cdf(gamma_dist1, upper_bound1) - cdf(gamma_dist1, lower_bound1);
+  const double denominator2 = cdf(gamma_dist2, upper_bound2) - cdf(gamma_dist2, lower_bound2);
 
-  std::vector<std::array<double, 2>> pmf(demand_length);
-  for (int i = 0; i < demand_length; i++) {
-    pmf[i][0] = i + lower_bound;
-    pmf[i][1] = cdf(gamma_dist, pmf[i][0] + 0.5) - cdf(gamma_dist, std::fmax(pmf[i][0] - 0.5, 0));
-    pmf[i][1] /= denominator;
+  std::array<std::vector<std::array<double, 2>>, 2> pmfs;
+  pmfs[0].resize(demand_length1);
+  pmfs[1].resize(demand_length2);
+  for (int i = 0; i < demand_length1; i++) {
+    pmfs[0][i][0] = i + lower_bound1;
+    pmfs[0][i][1] = cdf(gamma_dist1, pmfs[0][i][0] + 0.5) - cdf(gamma_dist1, std::fmax(pmfs[0][i][0] - 0.5, 0));
+    pmfs[0][i][1] /= denominator1;
+  }
+  for (int i = 0; i < demand_length2; i++) {
+    pmfs[1][i][0] = i + lower_bound2;
+    pmfs[1][i][1] = cdf(gamma_dist2, pmfs[1][i][0] + 0.5) - cdf(gamma_dist2, std::fmax(pmfs[1][i][0] - 0.5, 0));
+    pmfs[1][i][1] /= denominator2;
   }
 
-  return pmf;
+  return pmfs;
 }

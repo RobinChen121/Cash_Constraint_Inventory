@@ -13,60 +13,69 @@
 #include <vector>
 
 #include "state_multi.h"
+#include "state_heuristic2.h"
 
 class TwoProduct {
-  int T;
-  int capacity;
-  double max_I;
-  double interest_rate;
+    int T;
+    int capacity;
+    double max_I;
+    double interest_rate;
 
-  std::vector<double> prices;
-  std::vector<double> unit_order_costs;
-  std::vector<double> unit_salvage_values;
+    std::vector<double> prices;
+    std::vector<double> unit_order_costs;
+    std::vector<double> unit_salvage_values;
 
-  std::vector<std::array<double, 3>> pmf;
-  std::array<std::vector<std::array<double, 2>>, 2> pmfs;
+    std::vector<std::array<double, 3>> pmf;
+    std::array<std::vector<std::array<double, 2>>, 2> pmfs;
 
-  std::unordered_map<StateMulti, double> cache_values;
-  std::unordered_map<StateMulti, std::array<double, 2>> cache_actions;
+    std::unordered_map<StateMulti, double> cache_values;
+    std::unordered_map<StateMulti, std::array<double, 2>> cache_actions;
 
-  std::array<std::vector<std::vector<double>>, 2> cache_valuesG;
+    std::array<std::vector<std::vector<double>>, 2> cache_valuesG;
 
-  std::unordered_map<StateMulti, double> cache_value_theorem2; // for using a* in dynamic programming
+    std::unordered_map<StateMulti, double>
+            cache_value2; // for using a* in dynamic programming
 
-  std::unordered_map<StateMulti, double> cache_values_heuristic2;
+    std::unordered_map<StateMulti, double> cache_values_heuristic2;
+    std::unordered_map<StateMulti, double> cache_values_heuristic1;
 
-  public:
-  std::array<std::vector<int>, 2> astar_G;
+public:
+    std::array<std::vector<int>, 2> astar_G;
 
-  TwoProduct(int T, int capacity, double max_I, double interest_rate,
-             const std::vector<double> &prices, const std::vector<double> &unit_order_costs,
-             const std::vector<double> &unit_salvage_values,
-             const std::vector<std::array<double, 3>> &pmf);
+    TwoProduct(int T, int capacity, double max_I, double interest_rate,
+               const std::vector<double> &prices, const std::vector<double> &unit_order_costs,
+               const std::vector<double> &unit_salvage_values,
+               const std::vector<std::array<double, 3>> &pmf);
 
-  [[nodiscard]] std::vector<std::array<double, 2>> feasible_actions(const StateMulti &state) const;
-  [[nodiscard]] StateMulti state_transition(const StateMulti &ini_state,
-                                            const std::array<double, 2> &actions,
-                                            const std::array<double, 2> &demands) const;
-  [[nodiscard]] double immediate_value(const StateMulti &ini_state,
-                                       const std::array<double, 2> &actions,
-                                       const std::array<double, 2> &demands) const;
-  [[nodiscard]] double get_action_value_theorem2(const StateMulti &state,
-                                        const std::array<double, 2> &action);
+    [[nodiscard]] std::vector<std::array<double, 2>>
+    feasible_actions(const StateMulti &state) const;
+    [[nodiscard]] StateMulti state_transition(const StateMulti &ini_state,
+                                              const std::array<double, 2> &actions,
+                                              const std::array<double, 2> &demands) const;
+    [[nodiscard]] double immediate_value(const StateMulti &ini_state,
+                                         const std::array<double, 2> &actions,
+                                         const std::array<double, 2> &demands) const;
+    [[nodiscard]] double get_action_value(const StateMulti &state,
+                                                   const std::array<double, 2> &action);
+    [[nodiscard]] double get_action_value_heuristic1(const StateMulti &state,
+                                                   const std::array<double, 2> &action);
 
-  double recursion(const StateMulti &state);
-  double recursion2(const StateMulti &state);
-  std::vector<double> solve(const StateMulti &state);
+    double recursion(const StateMulti &state);
+    double recursion2(const StateMulti &state);
+    std::vector<double> solve(const StateMulti &state);
 
-  void get_a_stars();
-  void compute_stageG(int t, int start_y, int end_y, int product_index);
-  void set_pmfs(const std::array<double, 2> &means, const std::array<double, 2> &scales,
-                double truncated_quantile);
+    void get_a_stars();
+    void compute_stageG(int t, int start_y, int end_y, int product_index);
+    void set_pmfs(const std::array<double, 2> &means, const std::array<double, 2> &scales,
+                  double truncated_quantile);
 
-  double heuristic1(const StateMulti &state) const;
-  double heuristic1_2(const StateMulti &state);
+    double heuristic1(const StateMulti &state) const;
+    double heuristic1_2(const StateMulti &state);
 
-  double heuristic2(const StateMulti &state);
+    double heuristic2(const StateMulti &state);
+    double heuristic2_2(const StateMulti &state);
+
+    std::array<double, 3> get_1period_value(const StateMulti & state) const;
 };
 
 
